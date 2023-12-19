@@ -44,36 +44,23 @@ describe('/jobs/:job_id/pay suite', () => {
         const unpaidResponse = await request(app)
             .get(`/jobs/unpaid`)
             .set({ 'profile_id': contractor7.id, Accept: 'application/json' });
-        
         const unpaidJob = unpaidResponse.body[1]
-
         const response = await request(app)
             .get(`/jobs/${unpaidJob.id}/pay`)
             .set({ 'profile_id': contractor7.id, Accept: 'application/json' });
-
-        
         expect(response.statusCode).toBe(401);
         expect(response.body.error).toBe('insufficient funds');
     });
 
     it('client pay for job', async() => {
-        // job id 5
-        // contract id 7
-        // ContractorId contractor7.id
         const unpaidResponse = await request(app)
             .get(`/jobs/unpaid`)
             .set({ 'profile_id': contractor6.id, Accept: 'application/json' });
         
         const unpaidJob = unpaidResponse.body[0]
-        // console.log(unpaidResponse.body)
         let response = await request(app)
             .get(`/jobs/${unpaidJob.id}/pay`)
             .set({ 'profile_id': contractor6.id, Accept: 'application/json' });
-        
-            response = await request(app)
-            .get(`/jobs/${unpaidJob.id}/pay`)
-            .set({ 'profile_id': contractor6.id, Accept: 'application/json' });
-        console.log(response.body)
         expect(response.statusCode).toBe(200);
         expect(response.body.data).toBe('paid');
     });

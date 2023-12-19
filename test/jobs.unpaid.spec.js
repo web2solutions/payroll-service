@@ -17,7 +17,6 @@ describe('/jobs/unpaid suite', () => {
         const response = await request(app)
             .get(`/jobs/unpaid`)
             .set({ 'profile_id': client1.id, Accept: 'application/json' });
-        console.log(response.body)
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(1);
     });
