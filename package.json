@@ -9,6 +9,8 @@
     "sqlite3": "^5.0.0"
   },
   "scripts": {
+    "prepare": "husky install",
+    "commit": "git add . && git-cz",
     "start": "nodemon ./src/server.js",
     "seed": "node ./scripts/seedDb.js",
     "test": "jest",
@@ -18,10 +20,20 @@
     "concurrently": "^8.0.1",
     "jest": "^29.7.0",
     "nodemon": "^2.0.22",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "@commitlint/cli": "^17.8.1",
+    "@commitlint/config-conventional": "^17.8.1",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^8.0.0"
   },
   "engines": {
     "node": ">=10.16.3"
   },
-  "engineStrict": true
+  "engineStrict": true,
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
