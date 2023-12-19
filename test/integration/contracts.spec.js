@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require("../src/app");
+const app = require("../../src/app");
 
 const { client1, contractor1, contract9, contract1 } = require('./data');
 const inValidUserId = 111111;

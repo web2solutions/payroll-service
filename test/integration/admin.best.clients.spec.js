@@ -1,9 +1,9 @@
 const request = require('supertest');
-const app = require("../src/app");
+const app = require("../../src/app");
 const { client1 } = require('./data');
 
-// Returns the profession that earned the most money (sum of jobs paid) for any contactor that worked in the query time range.
-describe('/admin/best-profession?start=<date>&end=<date> suite', () => {
+// returns the clients the paid the most for jobs in the query time period. limit query parameter should be 
+describe('/admin/best-clients?start=<date>&end=<date>&limit=<integer> suite', () => {
     it('programmer is the best profession with no date range', async() => {
         const response = await request(app)
             .get(`/admin/best-profession`)
@@ -23,7 +23,6 @@ describe('/admin/best-profession?start=<date>&end=<date> suite', () => {
 
     
     it('programmer is the best profession between 2020-08-14 and 2020-08-15', async() => {
-        const d = new Date();
         const start = '2020-08-14T00:00:00';
         const end = '2020-08-15T00:00:00';
         const response = await request(app)
