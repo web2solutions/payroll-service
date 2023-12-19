@@ -6,18 +6,18 @@ const inValidUserId = 111111;
 
 
 
-describe('/contracts suite', () => {
+describe('/jobs/unpaid suite', () => {
     it('auth must not works for invalid user', async() => {
         const response = await request(app)
-            .get(`/contracts`)
+            .get(`/jobs/unpaid`)
             .set({ 'profile_id': inValidUserId, Accept: 'application/json' });
         expect(response.statusCode).toBe(401);
     });
     it('client 1 has one active contract', async() => {
         const response = await request(app)
-            .get(`/contracts`)
+            .get(`/jobs/unpaid`)
             .set({ 'profile_id': client1.id, Accept: 'application/json' });
-        //console.log(response.body)
+        console.log(response.body)
         expect(response.statusCode).toBe(200);
         expect(response.body.length).toBe(1);
     });
