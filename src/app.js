@@ -120,36 +120,40 @@ app.get('/jobs/unpaid', getProfile ,async (req, res) =>{
 app.get('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
     const { job_id } = req.params;
     let error = null;
+    
+    const { Profile, Job, Contract } = req.app.get('models')
 
-    //
     if(isJobLocked(job_id)) {
         return res.status(401).json({ error: 'job locked'})
     }
 
     // get job
-    const {Job} = req.app.get('models')
     const job = await Job.findOne({ where: {  id: job_id } });
-    // check job
     if(!job) {
         return res.status(404).json({ error: 'job not found'})
     }
     if(job.paid) {
         return res.status(401).json({ error: 'job is already paid'})
     }
+    
    
     // get contract
-    const {Contract} = req.app.get('models')
     const contract = await Contract.findOne({ where: { id: job.ContractId, ContractorId: req.profile.id } })
     if(!contract) {
         return res.status(404).json({ error: 'job not found'});
     }
-    // check contract status
     if(contract.status !== 'in_progress') {
         return res.status(401).json({ error: 'can not pay for a inactive contract'});
     }
+
+    if(isClientLocked(contract.ClientId)) {
+        return res.status(401).json({ error: 'client locked'})
+    }
+    if(isContractorLocked(contract.ContractorId)) {
+        return res.status(401).json({ error: 'contractor locked'})
+    }
     
     // get client
-    const {Profile} = req.app.get('models')
     const client = await Profile.findOne({ where: { id: req.profile.id } })
     // check client
     if(!client) {
@@ -191,7 +195,7 @@ app.get('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
         return res.statusCode(500).json({ error })
     } 
 
-    res.json({ data: 'paid', error })
+    res.json({ data: 'paid' })
 });
 
 
