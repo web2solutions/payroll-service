@@ -7,15 +7,21 @@ app.use(bodyParser.json());
 app.set('sequelize', sequelize)
 app.set('models', sequelize.models)
 
-/**
- * FIX ME!
- * @returns contract by id
- */
+
 app.get('/contracts/:id',getProfile ,async (req, res) =>{
     const {Contract} = req.app.get('models')
-    const {id} = req.params
-    const contract = await Contract.findOne({where: {id}})
+    const {id} = req.params;
+    const query = { where: {  id } }
+    if(req.profile.type === 'client') {
+        query.where.ClientId = req.profile.id
+    } else if(req.profile.type === 'contractor') {
+        query.where.ContractorId = req.profile.id
+    }
+    const contract = await Contract.findOne(query)
     if(!contract) return res.status(404).end()
     res.json(contract)
 });
+
+
+
 module.exports = app;
