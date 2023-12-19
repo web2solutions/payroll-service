@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require("../src/app");
 
-const { client1, contractor1, contract9, contract1 } = require('./data');
+const { client1, client2, contractor1, contract9, contract1 } = require('./data');
 const inValidUserId = 111111;
 
 
@@ -13,11 +13,11 @@ describe('/jobs/unpaid suite', () => {
             .set({ 'profile_id': inValidUserId, Accept: 'application/json' });
         expect(response.statusCode).toBe(401);
     });
-    it('client 1 has one active contract', async() => {
+    it('client 2 has one active contract', async() => {
         const response = await request(app)
             .get(`/jobs/unpaid`)
-            .set({ 'profile_id': client1.id, Accept: 'application/json' });
+            .set({ 'profile_id': client2.id, Accept: 'application/json' });
         expect(response.statusCode).toBe(200);
-        expect(response.body.length).toBe(1);
+        expect(response.body.length).toBe(2);
     });
 });

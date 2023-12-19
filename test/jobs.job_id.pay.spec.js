@@ -14,7 +14,7 @@ describe('/jobs/:job_id/pay suite', () => {
         expect(response.statusCode).toBe(401);
     });
 
-    it('can not pay for non exiting job', async() => {
+    it('can not pay for non existing job', async() => {
         const response = await request(app)
             .get(`/jobs/0/pay`)
             .set({ 'profile_id': client1.id, Accept: 'application/json' });
@@ -26,7 +26,7 @@ describe('/jobs/:job_id/pay suite', () => {
 
         const response = await request(app)
             .get(`/jobs/1/pay`)
-            .set({ 'profile_id': 5, Accept: 'application/json' });
+            .set({ 'profile_id': client1.id, Accept: 'application/json' });
 
         expect(response.statusCode).toBe(401);
         expect(response.body.error).toBe('can not pay for a inactive contract');
@@ -35,7 +35,7 @@ describe('/jobs/:job_id/pay suite', () => {
     it('can not pay for paid job', async() => {
         const response = await request(app)
             .get(`/jobs/7/pay`)
-            .set({ 'profile_id': contractor6.id, Accept: 'application/json' });
+            .set({ 'profile_id': client1.id, Accept: 'application/json' });
         expect(response.statusCode).toBe(401);
         expect(response.body.error).toBe('job is already paid');
     });
@@ -43,11 +43,13 @@ describe('/jobs/:job_id/pay suite', () => {
     it('client with insufficient funds can not pay for job', async() => {
         const unpaidResponse = await request(app)
             .get(`/jobs/unpaid`)
-            .set({ 'profile_id': contractor7.id, Accept: 'application/json' });
-        const unpaidJob = unpaidResponse.body[1]
+            .set({ 'profile_id': 4, Accept: 'application/json' });
+        const unpaidJob = unpaidResponse.body[0]
+        
         const response = await request(app)
             .get(`/jobs/${unpaidJob.id}/pay`)
-            .set({ 'profile_id': contractor7.id, Accept: 'application/json' });
+            .set({ 'profile_id': 4, Accept: 'application/json' });
+        
         expect(response.statusCode).toBe(401);
         expect(response.body.error).toBe('insufficient funds');
     });
@@ -55,12 +57,14 @@ describe('/jobs/:job_id/pay suite', () => {
     it('client pay for job', async() => {
         const unpaidResponse = await request(app)
             .get(`/jobs/unpaid`)
-            .set({ 'profile_id': contractor6.id, Accept: 'application/json' });
+            .set({ 'profile_id': client1.id, Accept: 'application/json' });
         
         const unpaidJob = unpaidResponse.body[0]
+        
         let response = await request(app)
             .get(`/jobs/${unpaidJob.id}/pay`)
-            .set({ 'profile_id': contractor6.id, Accept: 'application/json' });
+            .set({ 'profile_id': client1.id, Accept: 'application/json' });
+        
         expect(response.statusCode).toBe(200);
         expect(response.body.data).toBe('paid');
     });

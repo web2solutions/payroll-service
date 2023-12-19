@@ -11,10 +11,9 @@
   "scripts": {
     "prepare": "husky install",
     "commit": "git add . && git-cz",
-    "start": "nodemon ./src/server.js",
+    "start": "npm run seed && nodemon ./src/server.js",
     "seed": "node ./scripts/seedDb.js",
-    "test": "jest",
-    "test:watch": "npm run test -- --watch"
+    "test": "rm database.sqlite3 && npm run seed && npx jest --verbose"
   },
   "devDependencies": {
     "concurrently": "^8.0.1",

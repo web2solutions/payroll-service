@@ -115,6 +115,46 @@ app.get('/jobs/unpaid', getProfile ,async (req, res) =>{
     res.json(jobs)
 });
 
+// Deposits money into the the the balance of a client, a client can't deposit more than 25% his total of jobs to pay. (at the deposit moment)
+app.post('/balances/deposit/:userId', getProfile, async (req, res) => {
+    const { userId } = req.params;
+    const { deposit } = req.body;
+    if(!deposit) {
+        return res.status(401).json({  error: 'please provide a valid deposit' })
+    }
+    if((+deposit) <= 0) {
+        return res.status(401).json({  error: 'please provide a valid deposit' })
+    }
+    const { Profile, Job, Contract } = req.app.get('models');
+    
+    const client = await Profile.findOne({ where: { id: userId } })
+    if(!client) {
+        return res.status(404).json({ error: 'client not found'});
+    }
+
+    const contracts = await Contract.findAll({ where: { ClientId: +userId  } });
+    const contractIds = contracts.filter(c => {
+        if(c.status === 'in_progress') return true;
+        return false;
+    }).map(c => c.id);
+
+    const jobs = await Job.findAll({ where: { ContractId: contractIds  } });
+    const totalOpen = jobs.filter(j => {
+        if(!j.paid) return true;
+        return false;
+    }).reduce((acc, cur) => {
+        return (acc.price | 0) + (cur.price | 0)
+    }, 0);
+
+    const maxDeposit = 25 * totalOpen / 100;
+    if(deposit >  maxDeposit) {
+        return res.status(401).json({  error: 'more than 25%' })
+    }
+    const totalTodeposit = client.balance + deposit;
+    const data = await client.update({ balance: totalTodeposit })
+
+    res.status(200).json({ data })
+});
 
 // Pay for a job, a client can only pay if his balance >= the amount to pay. The amount should be moved from the client's balance to the contractor balance.
 app.get('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
@@ -138,9 +178,10 @@ app.get('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
     
    
     // get contract
-    const contract = await Contract.findOne({ where: { id: job.ContractId, ContractorId: req.profile.id } })
+    
+    const contract = await Contract.findOne({ where: { id: job.ContractId, ClientId: req.profile.id } })
     if(!contract) {
-        return res.status(404).json({ error: 'job not found'});
+        return res.status(404).json({ error: 'contract not found'});
     }
     if(contract.status !== 'in_progress') {
         return res.status(401).json({ error: 'can not pay for a inactive contract'});
@@ -154,7 +195,7 @@ app.get('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
     }
     
     // get client
-    const client = await Profile.findOne({ where: { id: req.profile.id } })
+    const client = await Profile.findOne({ where: { id: +req.profile.id } })
     // check client
     if(!client) {
         return res.status(404).json({ error: 'client not found'});
@@ -180,6 +221,7 @@ app.get('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
         
             await client.update({ balance: clientDeductedBalance }, { transaction: t })
             await contractor.update({ balance: contractorIncreasedBalance }, { transaction: t })
+            await job.update({ paid: true, paymentDate: (new Date()) }, { transaction: t })
 
             return { client, contractor };
         });
@@ -192,7 +234,7 @@ app.get('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
     }
 
     if(error) {
-        return res.statusCode(500).json({ error })
+        return res.status(500).json({ error })
     } 
 
     res.json({ data: 'paid' })
