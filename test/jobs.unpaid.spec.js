@@ -13,7 +13,7 @@ describe('/jobs/unpaid suite', () => {
             .set({ 'profile_id': inValidUserId, Accept: 'application/json' });
         expect(response.statusCode).toBe(401);
     });
-    it('client 2 has one active contract', async() => {
+    it('client 2 has 2 unpaid jobs', async() => {
         const response = await request(app)
             .get(`/jobs/unpaid`)
             .set({ 'profile_id': client2.id, Accept: 'application/json' });
