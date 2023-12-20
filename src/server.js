@@ -1,3 +1,4 @@
+/*global process */
 const app = require('./app');
 
 init();
