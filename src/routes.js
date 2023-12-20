@@ -8,6 +8,7 @@ const jobsUnpaidHandler = require('./handlers/jobsUnpaid');
 const balanceDepositHandler = require('./handlers/balanceDeposit');
 const jobPayHandler = require('./handlers/jobPay');
 const bestProfessionHandler = require('./handlers/bestProfession');
+const bestClientsHandler = require('./handlers/bestClients');
 
 const routes = function (app) {
   app.get('/contracts/:id', getProfile, contractByIdHandler);
@@ -16,6 +17,7 @@ const routes = function (app) {
   app.post('/balances/deposit/:userId', getProfile, balanceDepositHandler);
   app.get('/jobs/:job_id/pay', getProfile, jobPayHandler);
   app.get('/admin/best-profession', getProfile, bestProfessionHandler);
+  app.get('/admin/best-clients', getProfile, bestClientsHandler);
 };
 
 module.exports = routes;
