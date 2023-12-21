@@ -58,107 +58,57 @@ function isJobLocked(id) {
 }
 
 const jobPayHandler = async (req, res) => {
-  const {
-    job_id
-  } = req.params;
-  let error = null;
+  const { job_id } = req.params;
+  const { Profile, Job, Contract } = req.app.get('models');
 
-  const {
-    Profile,
-    Job,
-    Contract
-  } = req.app.get('models');
-
-  if (isJobLocked(job_id)) {
-    return res.status(401).json({
-      error: 'job locked'
-    });
-  }
-
-  // get job
-  const job = await Job.findOne({
-    where: {
-      id: job_id
-    }
-  });
-  if (!job) {
-    return res.status(404).json({
-      error: 'job not found'
-    });
-  }
-  if (job.paid) {
-    return res.status(401).json({
-      error: 'job is already paid'
-    });
-  }
-
-
-  // get contract
-
-  const contract = await Contract.findOne({
-    where: {
-      id: job.ContractId,
-      ClientId: req.profile.id
-    }
-  });
-  if (!contract) {
-    return res.status(404).json({
-      error: 'contract not found'
-    });
-  }
-  if (contract.status !== 'in_progress') {
-    return res.status(401).json({
-      error: 'can not pay for a inactive contract'
-    });
-  }
-
-  if (isClientLocked(contract.ClientId)) {
-    return res.status(401).json({
-      error: 'client locked'
-    });
-  }
-  if (isContractorLocked(contract.ContractorId)) {
-    return res.status(401).json({
-      error: 'contractor locked'
-    });
-  }
-
-  // get client
-  const client = await Profile.findOne({
-    where: {
-      id: +req.profile.id
-    }
-  });
-  // check client
-  if (!client) {
-    return res.status(404).json({
-      error: 'client not found'
-    });
-  }
-  if (client.balance < job.price) {
-    return res.status(401).json({
-      error: 'insufficient funds'
-    });
-  }
-
-  // get contractor
-  const contractor = await Profile.findOne({
-    where: {
-      id: contract.ContractorId
-    }
-  }); // contract.ContractorId
-  if (!contractor) {
-    return res.status(404).json({
-      error: 'contractor not found'
-    });
-  }
+  let managedClient = undefined;
+  let managedContractor = undefined;
 
   try {
-    lockJob(job_id);
-    lockClient(client.id);
-    lockContractor(contractor.id);
+    const { client, contractor, error } = await sequelize.transaction(async (t) => {
 
-    await sequelize.transaction(async (t) => {
+      if (isJobLocked(job_id)) return { error: new Error('job locked') };
+      
+      const job = await Job.findOne({
+        where: { id: job_id }
+      }, {
+        transaction: t
+      });
+
+      if (!job) return { error: new Error('job not found') };
+      if (job.paid) return { error: new Error('job is already paid') };
+    
+      const contract = await Contract.findOne({
+        where: { id: job.ContractId, ClientId: req.profile.id }
+      }, {
+        transaction: t
+      });
+
+      if (!contract) return { error: new Error('contract not found') };
+      if (contract.status !== 'in_progress') return { error: new Error('can not pay for a inactive contract') };
+    
+      if (isClientLocked(contract.ClientId)) return { error: new Error('client locked') };
+
+      const client = await Profile.findOne({
+        where: { id: +req.profile.id }
+      }, {
+        transaction: t
+      });
+
+      if (!client) return { error: new Error('client not found') };
+      if (client.balance < job.price) return { error: new Error('insufficient funds') };
+      
+      if (isContractorLocked(contract.ContractorId)) return { error: new Error( 'contractor locked') };
+      const contractor = await Profile.findOne({
+        where: { id: +contract.ContractorId }
+      });
+      
+      if (!contractor) return { error: new Error('contractor not found') };
+
+      lockJob(job_id);
+      lockClient(client.id);
+      lockContractor(contractor.id);
+
       const clientDeductedBalance = client.balance - job.price;
       const contractorIncreasedBalance = contractor.balance + job.price;
 
@@ -175,34 +125,47 @@ const jobPayHandler = async (req, res) => {
       });
       
       await job.update({
-        paid: true,
-        paymentDate: (new Date())
+        paid: true, paymentDate: (new Date())
       }, {
         transaction: t
       });
 
-      return {
+      unLockJob(job_id);
+      unLockClient(client.id);
+      unLockContractor(contractor.id);
+
+      managedClient = client.id;
+      managedContractor = contractor.id;
+
+      return { client, contractor };
+    });
+    
+    if(error) throw error;
+    
+    return res.json({
+      data: {
+        status: 'paid',
         client,
-        contractor
-      };
+        contractor,
+      }
     });
-  } catch (err) {
-    error = err;
-  } finally {
+  } catch (error) {
     unLockJob(job_id);
-    unLockClient(client.id);
-    unLockContractor(contractor.id);
-  }
-
-  if (error) {
-    return res.status(500).json({
-      error
-    });
-  }
-
-  res.json({
-    data: 'paid'
-  });
+    if(managedClient) unLockClient(managedClient.id);
+    if(managedContractor) unLockContractor(managedContractor.id);
+    const { message } = error;
+    const statusCode = httpStatusCodeBasedOnMessage(message) || 500;
+    return res.status(statusCode).json({ error: message });
+  } 
 };
+
+function httpStatusCodeBasedOnMessage(message) {
+  let statusCode = 0;
+  if(message == 'job not found') statusCode = 404;
+  if(message == 'can not pay for a inactive contract') statusCode = 404;
+  if(message == 'job is already paid') statusCode = 400;
+  if(message == 'insufficient funds') statusCode = 400;
+  return statusCode;
+}
 
 module.exports = jobPayHandler;
