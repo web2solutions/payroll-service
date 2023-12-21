@@ -37,7 +37,7 @@ describe('/admin/best-clients?start=<date>&end=<date>&limit=<integer> suite', ()
     expect(response.body.data.length).toBe(3);
   });
 
-  it('Mr Robot is the best client from 2020-08-13 up to 2020-08-18', async() => {
+  it('Harry Potter is the best client from 2020-08-13 up to 2020-08-18', async() => {
     const start = '2020-08-13T00:00:00';
     const end = '2020-08-18T00:00:00';
     const response = await request(app)
@@ -45,7 +45,7 @@ describe('/admin/best-clients?start=<date>&end=<date>&limit=<integer> suite', ()
       .set({ 'profile_id': client1.id, Accept: 'application/json' });
     expect(response.statusCode).toBe(200);
     expect(response.body.data.length).toBe(2);
-    expect(response.body.data[0].firstName).toBe('Mr');
-    expect(response.body.data[0].lastName).toBe('Robot');
+    expect(response.body.data[0].firstName).toBe('Harry');
+    expect(response.body.data[0].lastName).toBe('Potter');
   });
 });
