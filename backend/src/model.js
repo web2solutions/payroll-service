@@ -1,6 +1,6 @@
+
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './database.sqlite3',
@@ -26,7 +26,7 @@ Profile.init(
       type:Sequelize.DECIMAL(12,2)
     },
     type: {
-      type: Sequelize.ENUM('client', 'contractor')
+      type: Sequelize.ENUM('client', 'contractor', 'admin')
     }
   },
   {
