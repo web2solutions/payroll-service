@@ -43,17 +43,32 @@ const bestProfessionHandler = async (req, res) => {
       contractIdMaxAmount = key;
     }
   }
-
+  if(!contractIdMaxAmount) {
+    return res.json({
+      data: 'There is no jobs in the given date range'
+    });
+  }
   const contract = await Contract.findOne({
     where: {
       id: contractIdMaxAmount
     }
   });
+  if(!contract) {
+    return res.json({
+      data: 'There is no contract in the given date range'
+    });
+  }
   const contractor = await Profile.findOne({
     where: {
       id: contract.ContractorId
     }
   });
+
+  if(!contract) {
+    return res.json({
+      data: 'There is no contractor in the given date range'
+    });
+  }
 
   res.json({
     data: contractor.profession
