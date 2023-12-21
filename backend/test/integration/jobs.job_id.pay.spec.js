@@ -2,7 +2,7 @@
 const request = require('supertest');
 const app = require('../../src/app');
 
-const { client1 } = require('./data');
+const { client1 , client2 } = require('./data');
 const inValidUserId = 111111;
 
 
@@ -29,7 +29,7 @@ describe('/jobs/:job_id/pay suite', () => {
       .get('/jobs/1/pay')
       .set({ 'profile_id': client1.id, Accept: 'application/json' });
 
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(404);
     expect(response.body.error).toBe('can not pay for a inactive contract');
   });
 
@@ -37,7 +37,7 @@ describe('/jobs/:job_id/pay suite', () => {
     const response = await request(app)
       .get('/jobs/7/pay')
       .set({ 'profile_id': client1.id, Accept: 'application/json' });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
     expect(response.body.error).toBe('job is already paid');
   });
 
@@ -51,20 +51,20 @@ describe('/jobs/:job_id/pay suite', () => {
       .get(`/jobs/${unpaidJob.id}/pay`)
       .set({ 'profile_id': 4, Accept: 'application/json' });
         
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
     expect(response.body.error).toBe('insufficient funds');
   });
 
   it('client pay for job', async() => {
     const unpaidResponse = await request(app)
       .get('/jobs/unpaid')
-      .set({ 'profile_id': client1.id, Accept: 'application/json' });
+      .set({ 'profile_id': client2.id, Accept: 'application/json' });
         
     const unpaidJob = unpaidResponse.body[0];
         
     let response = await request(app)
       .get(`/jobs/${unpaidJob.id}/pay`)
-      .set({ 'profile_id': client1.id, Accept: 'application/json' });
+      .set({ 'profile_id': client2.id, Accept: 'application/json' });
         
     expect(response.statusCode).toBe(200);
     expect(response.body.data).toBe('paid');
