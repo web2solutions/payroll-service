@@ -1,17 +1,10 @@
 
 function Footer () {
 
-    function goToTop () {
-        window.scrollTo(0, 0);
-    }
-
     return (
-        <footer className="text-muted bg-light">
+        <footer className="fixed-bottom text-muted bg-light">
                 <div className="container">
-                <p className="float-right">
-                    <button className="btn btn-outline-primary" onClick={goToTop}>Back to top</button>
-                </p>
-                <p>Website Footer</p>
+                <p>Deel.</p>
             </div>
       </footer>
     )

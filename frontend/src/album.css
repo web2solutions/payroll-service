@@ -1,7 +1,9 @@
 :root {
     --jumbotron-padding-y: 3rem;
   }
-  
+  .bg-deel {
+    background-color: #14357A;
+  }
   .jumbotron {
     padding-top: var(--jumbotron-padding-y);
     padding-bottom: var(--jumbotron-padding-y);
