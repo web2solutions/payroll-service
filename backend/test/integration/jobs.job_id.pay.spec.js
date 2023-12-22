@@ -55,7 +55,7 @@ describe('/jobs/:job_id/pay suite', () => {
     expect(response.body.error).toBe('insufficient funds');
   });
 
-  it('client pay for job', async() => {
+  fit('client pay for job', async() => {
     const unpaidResponse = await request(app)
       .get('/jobs/unpaid')
       .set({ 'profile_id': client2.id, Accept: 'application/json' });

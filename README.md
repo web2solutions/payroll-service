@@ -60,7 +60,7 @@ To get able to reach the frontend application and see it running integrated with
 This project offers a command that concurrently starts both applications.
 
 ```bash
-    $   npm start
+    $   npm run seed && npm start
 ```
 
 Now you can reach it through your preferred browser by accessing `http://localhost:3000/`.
