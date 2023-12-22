@@ -184,7 +184,7 @@ const jobPayHandler = async (req, res) => {
       }
     });
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     unLockJob(job_id);
     if(managedClient) unLockClient(managedClient.id);
     if(managedContractor) unLockContractor(managedContractor.id);
