@@ -89,6 +89,7 @@ const jobPayHandler = async (req, res) => {
 
       if (isJobLocked(job_id)) return { error: new Error('job locked') };
       
+      
       lockJob(job_id);
       
 
@@ -97,11 +98,14 @@ const jobPayHandler = async (req, res) => {
       }, {
         transaction: t
       });
+      if (!job) return { error: new Error('job not found') };
+      if (job.paid) return { error: new Error('job is already paid') };
+
+      if (isContractLocked(job.ContractId)) return { error: new Error('contract locked') };
 
       lockContract(job.ContractId)
 
-      if (!job) return { error: new Error('job not found') };
-      if (job.paid) return { error: new Error('job is already paid') };
+      
     
       // lock contract
       const contract = await Contract.findOne({

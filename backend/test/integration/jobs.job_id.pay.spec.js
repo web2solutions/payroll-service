@@ -15,7 +15,7 @@ describe('/jobs/:job_id/pay suite', () => {
     expect(response.statusCode).toBe(401);
   });
 
-  it('can not pay for non existing job', async() => {
+  fit('can not pay for non existing job', async() => {
     const response = await request(app)
       .get('/jobs/0/pay')
       .set({ 'profile_id': client1.id, Accept: 'application/json' });
@@ -55,7 +55,7 @@ describe('/jobs/:job_id/pay suite', () => {
     expect(response.body.error).toBe('insufficient funds');
   });
 
-  fit('client pay for job', async() => {
+  it('client pay for job', async() => {
     const unpaidResponse = await request(app)
       .get('/jobs/unpaid')
       .set({ 'profile_id': client2.id, Accept: 'application/json' });
