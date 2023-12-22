@@ -57,7 +57,7 @@ describe('/balances/deposit/:userId suite', () => {
     const response = await request(app)
       .post(`/balances/deposit/${client2.id}`)
       .send({
-        deposit: 50
+        deposit: 10
       })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json')
@@ -66,7 +66,7 @@ describe('/balances/deposit/:userId suite', () => {
       });
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.data.balance).toBe(client2.balance + 50);
+    expect(response.body.data.balance).toBe(client2.balance + 10);
   });
 
 

@@ -67,6 +67,6 @@ describe('/jobs/:job_id/pay suite', () => {
       .set({ 'profile_id': client2.id, Accept: 'application/json' });
         
     expect(response.statusCode).toBe(200);
-    expect(response.body.data).toBe('paid');
+    expect(response.body.data.status).toBe('paid');
   });
 });
