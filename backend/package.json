@@ -12,7 +12,7 @@
     "sqlite3": "^5.0.0"
   },
   "scripts": {
-    "start": "rm database.sqlite3 && npm run seed && nodemon ./src/server.js",
+    "start": "npm run seed && nodemon ./src/server.js",
     "seed": "node ./scripts/seedDb.js",
     "test": "rm database.sqlite3 && npm run seed && npx jest --verbose",
     "lint": "eslint --ext .js .",
