@@ -89,64 +89,43 @@ const jobPayHandler = async (req, res) => {
     const { client, contractor, error } = await sequelize.transaction(async (t) => {
 
       if (isJobLocked(job_id)) return { error: new Error('job locked') };
-      
-      
+      if (isClientLocked(contract.ClientId)) return { error: new Error('client locked') };
       lockJob(job_id);
+      lockClient(+req.profile.id);
+      managedClient = contract.ClientId;
       
-
       const job = await Job.findOne({
         where: { id: job_id }
-      }, {
-        transaction: t
-      });
+      }, { transaction: t });
       if (!job) return { error: new Error('job not found') };
       if (job.paid) return { error: new Error('job is already paid') };
 
       if (isContractLocked(job.ContractId)) return { error: new Error('contract locked') };
+      lockContract(job.ContractId);
+      managedContract = job.ContractId;
 
-      lockContract(job.ContractId)
-
-      
-    
-      // lock contract
       const contract = await Contract.findOne({
         where: { id: job.ContractId, ClientId: req.profile.id }
-      }, {
-        transaction: t
-      });
-
+      }, { transaction: t });
       if (!contract) return { error: new Error('contract not found') };
       if (contract.status !== 'in_progress') return { error: new Error('can not pay for a inactive contract') };
     
-      if (isClientLocked(contract.ClientId)) return { error: new Error('client locked') };
       if (isContractorLocked(contract.ContractorId)) return { error: new Error( 'contractor locked') };
-      
-      lockClient(contract.ClientId);
       lockContractor(contract.ContractorId);
-
-      managedClient = contract.ClientId;
       managedContractor = contract.ContractorId;
-      managedContract = job.ContractId;
-
+      
       const client = await Profile.findOne({
         where: { id: +req.profile.id }
-      }, {
-        transaction: t
-      });
+      }, { transaction: t });
+
 
       if (!client) return { error: new Error('client not found') };
       if (client.balance < job.price) return { error: new Error('insufficient funds') };
       
-      
       const contractor = await Profile.findOne({
         where: { id: +contract.ContractorId }
-      });
-      
+      }, { transaction: t });
       if (!contractor) return { error: new Error('contractor not found') };
-
-      
-      
-      
 
       const clientDeductedBalance = client.balance - job.price;
       const contractorIncreasedBalance = contractor.balance + job.price;
@@ -172,8 +151,7 @@ const jobPayHandler = async (req, res) => {
       unLockJob(job_id);
       unLockClient(client.id);
       unLockContractor(contractor.id);
-
-      
+      unLockContract(job.ContractId);
 
       return { client, contractor };
     });
@@ -188,14 +166,12 @@ const jobPayHandler = async (req, res) => {
       }
     });
   } catch (error) {
-    console.log(error)
     unLockJob(job_id);
     if(managedClient) unLockClient(managedClient);
     if(managedContractor) unLockContractor(managedContractor);
     if(managedContract) unLockContract(managedContract);
-    const { message } = error;
-    const statusCode = httpStatusCodeBasedOnMessage(message) || 500;
-    return res.status(statusCode).json({ error: message });
+    const statusCode = httpStatusCodeBasedOnMessage(error.message) || 500;
+    return res.status(statusCode).json({ error: error.message });
   } 
 };
 
