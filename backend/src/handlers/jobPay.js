@@ -83,6 +83,7 @@ const jobPayHandler = async (req, res) => {
 
   let managedClient = undefined;
   let managedContractor = undefined;
+  let managedContract = undefined;
 
   try {
     const { client, contractor, error } = await sequelize.transaction(async (t) => {
@@ -122,6 +123,10 @@ const jobPayHandler = async (req, res) => {
       
       lockClient(contract.ClientId);
       lockContractor(contract.ContractorId);
+
+      managedClient = contract.ClientId;
+      managedContractor = contract.ContractorId;
+      managedContract = job.ContractId;
 
       const client = await Profile.findOne({
         where: { id: +req.profile.id }
@@ -168,8 +173,7 @@ const jobPayHandler = async (req, res) => {
       unLockClient(client.id);
       unLockContractor(contractor.id);
 
-      managedClient = client.id;
-      managedContractor = contractor.id;
+      
 
       return { client, contractor };
     });
@@ -184,10 +188,11 @@ const jobPayHandler = async (req, res) => {
       }
     });
   } catch (error) {
-    // console.log(error)
+    console.log(error)
     unLockJob(job_id);
-    if(managedClient) unLockClient(managedClient.id);
-    if(managedContractor) unLockContractor(managedContractor.id);
+    if(managedClient) unLockClient(managedClient);
+    if(managedContractor) unLockContractor(managedContractor);
+    if(managedContract) unLockContract(managedContract);
     const { message } = error;
     const statusCode = httpStatusCodeBasedOnMessage(message) || 500;
     return res.status(statusCode).json({ error: message });

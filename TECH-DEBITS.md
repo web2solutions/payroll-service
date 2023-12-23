@@ -5,6 +5,7 @@
 - improve testing (date ranges) and possibly buggy implementation for best professions and best clients
 - Write tests to cover the non official end end points - /login and /profiles
 - add username and password to Profiles
+- get sqlite working with docker
 
 
 ## Front end
