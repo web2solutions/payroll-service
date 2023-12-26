@@ -1,11 +1,15 @@
 
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const fn = Sequelize.fn;
+const col = Sequelize.col;
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './database.sqlite3',
   logging: false
 });
+
+// console.log('----------------------', Sequelize.fn);
 
 class Profile extends Sequelize.Model {}
 Profile.init(
@@ -86,6 +90,9 @@ Job.belongsTo(Contract);
 
 module.exports = {
   sequelize,
+  fn,
+  col,
+  Sequelize,
   Profile,
   Contract,
   Job,

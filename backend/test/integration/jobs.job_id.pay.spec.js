@@ -1,4 +1,4 @@
-/*global  describe, it, expect */
+/*global  describe, it, expect, afterEach */
 const request = require('supertest');
 const app = require('../../src/app');
 
@@ -8,6 +8,9 @@ const inValidUserId = 111111;
 
 // Pay for a job, a clifent can only pay if his balance >= the amount to pay. The amount should be moved from the client's balance to the contractor balance.
 describe('/jobs/:job_id/pay suite', () => {
+  afterEach(() => {
+    app.get('locker').quit();
+  });
   it('auth must not works for invalid user', async() => {
     const response = await request(app)
       .get('/jobs/0/pay')
@@ -15,10 +18,11 @@ describe('/jobs/:job_id/pay suite', () => {
     expect(response.statusCode).toBe(401);
   });
 
-  fit('can not pay for non existing job', async() => {
+  it('can not pay for non existing job', async() => {
     const response = await request(app)
       .get('/jobs/0/pay')
       .set({ 'profile_id': client1.id, Accept: 'application/json' });
+
     expect(response.statusCode).toBe(404);
     expect(response.body.error).toBe('job not found');
   });
@@ -28,7 +32,7 @@ describe('/jobs/:job_id/pay suite', () => {
     const response = await request(app)
       .get('/jobs/1/pay')
       .set({ 'profile_id': client1.id, Accept: 'application/json' });
-
+    
     expect(response.statusCode).toBe(404);
     expect(response.body.error).toBe('can not pay for a inactive contract');
   });

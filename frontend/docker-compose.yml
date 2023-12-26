@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  deel-front-end:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: deel-front-end
+    container_name: deel-front-end
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - app-network
+    command: >
+      sh -c "npm run start:server"
+
+networks:
+    app-network:
+      driver: bridge

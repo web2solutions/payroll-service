@@ -37,13 +37,39 @@ Due the time limitation, there is a [list with some known tech debits](./TECH-DE
 - npm
 - Docker
 
+
+
+## Testing
+
+Due the time limitation, actually only the [backend](./backend) have a [test suite](./backend/test/integration/).
+
+Rather than to write unit tests to cover the application, I decided to implement integration tests.
+
+To test the backend application you need to navigate to it folder through your terminal in prior.
+
+```bash
+    $   cd backend
+```
+
+***`Note1:`  Do not start the API to test it.***
+***`Note2:`  Delete the file `/backend/database.sqlite3`, if it exists, before running the tests .***
+
+Now you can run the test suite:
+
+```bash
+    $   npm test
+```
+
+
 ## How to run the application?
+
+If you don't have Docker then you can manual run it.
 
 ### Manually running the applications
 
 It is recommended to have at least the version `18` of `Node.js`.
 
-If you don't have Docker then you can manual run it.
+You will need to have [Redis](https://redis.io/docs/install/install-redis/) installed to manual run the application
 
 #### Install
 
@@ -60,27 +86,17 @@ To get able to reach the frontend application and see it running integrated with
 This project offers a command that concurrently starts both applications.
 
 ```bash
-    $   npm run seed && npm start
+    $   npm start
 ```
 
 Now you can reach it through your preferred browser by accessing `http://localhost:3000/`.
 
-## Testing
 
-Due the time limitation, actually only the [backend](./backend) have a [test suite](./backend/test/integration/).
+### Running the applications with Docker
 
-Rather than to write unit tests to cover the application, I decided to implement integration tests.
-
-To test the backend application you need to navigate to it folder through your terminal in prior.
 
 ```bash
-    $   cd backend
+    $   npm run install:all
 ```
 
-***`Note:`  Do not start the API to test it.***
-
-Now you can run the test suite:
-
-```bash
-    $   npm test
-```
+Once the containers are started, you can reach it through your preferred browser by accessing `http://localhost:3000/`.

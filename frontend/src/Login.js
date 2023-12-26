@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 import { useContext, useState, useMemo } from 'react';
 import { UserContextData  } from './UserContext';
 import './login.css';
@@ -45,9 +46,13 @@ function Login() {
   }
 
   async function doLogin (event) {
-    event.preventDefault();
+    
     try {
+      event.preventDefault();
       
+      if(inputFirstName === '' || inputLastName === '') return alert('Please select a profile to do login.');
+      event.nativeEvent.target.elements['submit'].disabled = true;
+      event.nativeEvent.submitter.disabled = true
       const response = await fetch('http://localhost:3001/login', {
         method: "POST",
         headers: {
@@ -59,8 +64,12 @@ function Login() {
     
       const { id, firstName, lastName, type, balance, profession } = body.data;
       setUser({ id, firstName, lastName, type, balance, profession, isOnline: true });
+      event.nativeEvent.submitter.disabled = false;
+      event.nativeEvent.target.elements['submit'].disabled = false;
     } catch (error) {
-      console.log(error);
+      alert(error.message);
+      event.nativeEvent.submitter.disabled = false
+      event.nativeEvent.target.elements['submit'].disabled = false;
     }
   }
 
@@ -117,7 +126,7 @@ function Login() {
             />
             <label htmlFor="inputLastName">Last Name</label>
           </div>
-          <button className="btn btn-primary btn-block" type="submit">Sign in</button>
+          <button className="btn btn-primary btn-block" name="submit" type="submit">Sign in</button>
         </form>
       </div>
   );

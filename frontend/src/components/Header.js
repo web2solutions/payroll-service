@@ -4,6 +4,12 @@ import { Link } from "react-router-dom";
 import { UserContextData  } from '../UserContext';
 
 function Header () {
+
+    function logout() {
+      if (!confirm('Do you really want to logout?')) return; 
+      setUser({});
+    };
+
     const { user, setUser } = useContext(UserContextData);
     return (
         <header>
@@ -18,7 +24,7 @@ function Header () {
                         { user.type }
                       </li>
                       <li className="nav-item text-muted">
-                        <Link className="btn-danger p-1 rounded rounded-2" onClick={()  => setUser({}) }>logout</Link>
+                        <Link className="btn-danger p-1 rounded rounded-2" onClick={logout}>logout</Link>
                       </li>
                   </ul>
                 </div>

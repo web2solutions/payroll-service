@@ -1,108 +1,32 @@
-let lockedClients = {};
-let lockedContractors = {};
-let lockedJobs = {};
-let lockedContracts = {};
-
-const {
-  sequelize
-} = require('../model');
-
-function lockContract(id) {
-  if (!lockedContracts[`${id}`]) {
-    lockedContracts[`${id}`] = true;
-  }
-}
-
-function unLockContract(id) {
-  if (lockedContracts[`${id}`]) {
-    delete lockedContracts[`${id}`];
-  }
-}
-
-function isContractLocked(id) {
-  return !!lockedContracts[`${id}`];
-}
-
-// -- 
-
-
-function lockClient(id) {
-  if (!lockedClients[`${id}`]) {
-    lockedClients[`${id}`] = true;
-  }
-}
-
-function unLockClient(id) {
-  if (lockedClients[`${id}`]) {
-    delete lockedClients[`${id}`];
-  }
-}
-
-function isClientLocked(id) {
-  return !!lockedClients[`${id}`];
-}
-
-// -- 
-function lockContractor(id) {
-  if (!lockedContractors[`${id}`]) {
-    lockedContractors[`${id}`] = true;
-  }
-}
-
-function unLockContractor(id) {
-  if (lockedContractors[`${id}`]) {
-    delete lockedContractors[`${id}`];
-  }
-}
-
-function isContractorLocked(id) {
-  return !!lockedContractors[`${id}`];
-}
-
-// --
-
-function lockJob(id) {
-  if (!lockedJobs[`${id}`]) {
-    lockedJobs[`${id}`] = true;
-  }
-}
-
-function unLockJob(id) {
-  if (lockedJobs[`${id}`]) {
-    delete lockedJobs[`${id}`];
-  }
-}
-
-function isJobLocked(id) {
-  return !!lockedJobs[`${id}`];
-}
+const { sequelize } = require('../model');
 
 const jobPayHandler = async (req, res) => {
   const { job_id } = req.params;
   const { Profile, Job, Contract } = req.app.get('models');
-
-  let managedClient = undefined;
-  let managedContractor = undefined;
-  let managedContract = undefined;
+  const locker = req.app.get('locker');
+  let lockedClient = undefined;
+  let lockedContractor = undefined;
+  let lockedContract = undefined;
 
   try {
     const { client, contractor, error } = await sequelize.transaction(async (t) => {
 
-      if (isJobLocked(job_id)) return { error: new Error('job locked') };
-      if (isClientLocked(contract.ClientId)) return { error: new Error('client locked') };
-      lockJob(job_id);
-      lockClient(+req.profile.id);
-      managedClient = contract.ClientId;
-      
+      const lockClient = await locker.lock('client', req.profile.id);
+      if (lockClient.wasAlreadyLocked) return { error: new Error('client locked') };
+      lockedClient = req.profile.id;
+
+      const lockJob = await locker.lock('job', job_id);
+      if (lockJob.wasAlreadyLocked) return { error: new Error('job locked') };
+
       const job = await Job.findOne({
         where: { id: job_id }
       }, { transaction: t });
       if (!job) return { error: new Error('job not found') };
       if (job.paid) return { error: new Error('job is already paid') };
-
-      if (isContractLocked(job.ContractId)) return { error: new Error('contract locked') };
-      lockContract(job.ContractId);
-      managedContract = job.ContractId;
+      
+      const lockContract = await locker.lock('contract', job.ContractId);
+      if (lockContract.wasAlreadyLocked) return { error: new Error('contract locked') };
+      lockedContract = job.ContractId;
 
       const contract = await Contract.findOne({
         where: { id: job.ContractId, ClientId: req.profile.id }
@@ -110,15 +34,13 @@ const jobPayHandler = async (req, res) => {
       if (!contract) return { error: new Error('contract not found') };
       if (contract.status !== 'in_progress') return { error: new Error('can not pay for a inactive contract') };
     
-      if (isContractorLocked(contract.ContractorId)) return { error: new Error( 'contractor locked') };
-      lockContractor(contract.ContractorId);
-      managedContractor = contract.ContractorId;
+      const lockContractor = await locker.lock('contractor', contract.ContractorId);
+      if (lockContractor.wasAlreadyLocked) return { error: new Error('contractor locked') };
+      lockedContractor = contract.ContractorId;
       
       const client = await Profile.findOne({
         where: { id: +req.profile.id }
       }, { transaction: t });
-
-
       if (!client) return { error: new Error('client not found') };
       if (client.balance < job.price) return { error: new Error('insufficient funds') };
       
@@ -148,10 +70,10 @@ const jobPayHandler = async (req, res) => {
         transaction: t
       });
 
-      unLockJob(job_id);
-      unLockClient(client.id);
-      unLockContractor(contractor.id);
-      unLockContract(job.ContractId);
+      await locker.unlock('job', job_id);
+      await locker.unlock('client', req.profile.id);
+      await locker.unlock('contract', job.ContractId);
+      await locker.unlock('contractor',  contract.ContractorId);
 
       return { client, contractor };
     });
@@ -166,17 +88,20 @@ const jobPayHandler = async (req, res) => {
       }
     });
   } catch (error) {
-    unLockJob(job_id);
-    if(managedClient) unLockClient(managedClient);
-    if(managedContractor) unLockContractor(managedContractor);
-    if(managedContract) unLockContract(managedContract);
-    const statusCode = httpStatusCodeBasedOnMessage(error.message) || 500;
-    return res.status(statusCode).json({ error: error.message });
+    // console.log(error);
+    (async () => {
+      await locker.unlock('client', lockedClient);
+      await locker.unlock('job', job_id);
+      await locker.unlock('contract', lockedContract);
+      await locker.unlock('contractor', lockedContractor);
+      const statusCode = httpStatusCodeBasedOnMessage(error.message);
+      return res.status(statusCode).json({ error: error.message });
+    })();    
   } 
 };
 
 function httpStatusCodeBasedOnMessage(message) {
-  let statusCode = 0;
+  let statusCode = 500;
   if(message == 'job not found') statusCode = 404;
   if(message == 'can not pay for a inactive contract') statusCode = 404;
   if(message == 'job is already paid') statusCode = 400;

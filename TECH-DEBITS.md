@@ -2,9 +2,11 @@
 
 ## Backend
 
+- lock mechanism for deposit once it has a limit of 25% of all unpaid jobs. jobs must be locked.
+- add username and password to Profiles
+- Implement auth with JWT..
 - improve testing (date ranges) and possibly buggy implementation for best professions and best clients
 - Write tests to cover the non official end end points - /login and /profiles
-- add username and password to Profiles
 - get sqlite working with docker
 
 

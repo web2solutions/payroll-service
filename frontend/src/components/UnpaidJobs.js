@@ -12,6 +12,7 @@ function UnpaidJobs ({ unpaidJobs }) {
 
     async function payForJob (button, id, amount ) {
       try {
+      if (!confirm('Do you really want to pay for this job?')) return; 
         // disable button
         button.disabled = 'disabled';
         const { data, error } = await doPayment(id);

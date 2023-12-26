@@ -38,7 +38,7 @@ describe('/balances/deposit/:userId suite', () => {
       .set({
         'profile_id': client1.id
       });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
   it('can not do deposit more than 25%', async () => {
     const response = await request(app)
@@ -51,7 +51,8 @@ describe('/balances/deposit/:userId suite', () => {
       .set({
         'profile_id': client1.id
       });
-    expect(response.statusCode).toBe(401);
+      
+    expect(response.statusCode).toBe(400);
   });
   it('do deposit', async () => {
     const response = await request(app)
