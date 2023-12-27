@@ -6,13 +6,13 @@ class LockerService {
     this.client = redis.createClient({
       host: '127.0.0.1',
       port: 6379,
-      database: '2',
+      database: '3',
       password: 'eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81',
     });
-    // this.client.on('error', (err) => console.log('Redis Client Error', err));
+    this.client.on('error', (err) => console.log('Redis Client Error', err));
     // this.client.on('connect', () => console.log('Redis connected'));
     // this.client.on('ready', () => console.log('Redis ready'));
-    this.prefix = 'locker_';
+    this.prefix = 'locker__';
     this.connected = false;
   }
 
