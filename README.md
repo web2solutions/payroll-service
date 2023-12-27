@@ -20,6 +20,7 @@ Due the time limitation, there is a [list with some known tech debits](./TECH-DE
 - Sequelize
 - SQLite
 - Supertest
+- Redis
 
 ### Frontend
 
@@ -96,7 +97,7 @@ Now you can reach it through your preferred browser by accessing `http://localho
 
 
 ```bash
-    $   npm run install:all
+    $   npm run docker
 ```
 
 Once the containers are started, you can reach it through your preferred browser by accessing `http://localhost:3000/`.
