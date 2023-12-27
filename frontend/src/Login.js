@@ -89,8 +89,9 @@ function Login() {
           <div className="text-center mb-4">
             <img className="mb-4 rounded" src="img/deel.jpeg" alt="" width="72" height="72" />
             <h1 className="h3 mb-3 font-weight-normal">Deel home task</h1>
-            <p>Please do login</p>
+            <label htmlFor="profile-selection">Profile selection</label>
             <select
+              id="profile-selection"
               className="form-control"
               value={selectedUser} 
               onChange={handleSelectedUser}

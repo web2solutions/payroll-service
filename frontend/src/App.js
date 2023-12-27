@@ -1,12 +1,9 @@
 import { useContext } from 'react';
 import {  Routes, Route, HashRouter } from "react-router-dom";
 
-
-
-import './album.css';
+import './app.css';
 
 import  Header from './components/Header';
-// import  Banner from './components/Banner';
 import Footer from './components/Footer';
 
 import Dashboard from "./components/Dashboard";

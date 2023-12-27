@@ -19,7 +19,6 @@ Due the time limitation, there is a [list with some known tech debits](./TECH-DE
 - Express Parser
 - Sequelize
 - SQLite
-- Supertest
 - Redis
 
 ### Frontend
@@ -37,6 +36,8 @@ Due the time limitation, there is a [list with some known tech debits](./TECH-DE
 - Commitizen
 - npm
 - Docker
+- Jest
+- Supertest
 
 
 
@@ -53,6 +54,7 @@ To test the backend application you need to navigate to it folder through your t
 ```
 
 ***`Note1:`  Do not start the API to test it.***
+
 ***`Note2:`  Delete the file `/backend/database.sqlite3`, if it exists, before running the tests .***
 
 Now you can run the test suite:
