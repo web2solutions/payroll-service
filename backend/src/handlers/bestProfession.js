@@ -1,8 +1,4 @@
 
-const Sequelize = require('sequelize');
-const {
-  Op
-} = require('../model');
 
 const httpStatusCodeBasedOnMessage = (message) => {
   let statusCode = 500;
@@ -17,6 +13,7 @@ const bestProfessionHandler = async (req, res) => {
   try {
     const { start, end } = req.query;
     const { Job, Contract, Profile } = req.app.get('models');
+    const Sequelize = req.app.get('Sequelize');
     const query = { where: { paid: true } };
     
     if (start && end) {
@@ -24,7 +21,7 @@ const bestProfessionHandler = async (req, res) => {
       const endDate = new Date(end);
       if (startDate.getTime() >= endDate.getTime()) throw new Error('please provide a valid date range');
       query.where.paymentDate = query.where.paymentDate || {};
-      query.where.paymentDate[Op.between] = [startDate, endDate];
+      query.where.paymentDate[Sequelize.Op.between] = [startDate, endDate];
     }
 
     const aggregatedJobsPrice = await Job.findAll({
@@ -49,7 +46,7 @@ const bestProfessionHandler = async (req, res) => {
       data: contract.Contractor.profession
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     const statusCode = httpStatusCodeBasedOnMessage(error.message);
     return res.status(statusCode).json({ error: error.message });
   }

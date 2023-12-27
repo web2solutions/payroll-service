@@ -29,7 +29,7 @@ describe('/admin/best-profession?start=<date>&end=<date> suite', () => {
     const response = await request(app)
       .get(`/admin/best-profession?start=${start}&end=${end}`)
       .set({ 'profile_id': client2.id, Accept: 'application/json' });
-    console.log(response.body);
+    
     expect(response.statusCode).toBe(404);
     expect(response.body.error).toBe('There is no jobs in the given date range');
   });
@@ -41,19 +41,19 @@ describe('/admin/best-profession?start=<date>&end=<date> suite', () => {
     const response = await request(app)
       .get(`/admin/best-profession?start=${start}&end=${end}`)
       .set({ 'profile_id': client2.id, Accept: 'application/json' });
-    console.log(response.body);
+    
     expect(response.statusCode).toBe(404);
     expect(response.body.error).toBe('There is no jobs in the given date range');
   });
 
     
-  fit('programmer is the best profession between 2020-08-14 and 2020-08-15', async() => {
+  it('programmer is the best profession between 2020-08-14 and 2020-08-15', async() => {
     const start = '2020-08-14T00:00:00';
     const end = '2020-08-18T00:00:00';
     const response = await request(app)
       .get(`/admin/best-profession?start=${start}&end=${end}`)
       .set({ 'profile_id': client2.id, Accept: 'application/json' });
-    console.log(response.body);
+    
     expect(response.statusCode).toBe(200);
     expect(response.body.data).toBe('Programmer');
   });

@@ -1,6 +1,3 @@
-const Sequelize = require('sequelize');
-const { sequelize } = require('../model');
-
 const isNumber  = (num) => {
   return !isNaN(parseFloat(num)) && isFinite(num);
 };
@@ -24,19 +21,16 @@ const balanceDepositHandler = async (req, res) => {
   try {
     const { userId } = req.params;
     const { deposit } = req.body;
+    const sequelize = req.app.get('sequelize');
     const { Profile, Job, Contract } = req.app.get('models');
     const { data, error } = await sequelize.transaction(async (t) => {
       
-      if(!isDepositValid(deposit)) {
-        return { error: new Error('please provide a valid deposit') };
-      }
+      if(!isDepositValid(deposit)) return { error: new Error('please provide a valid deposit') };
 
       const client = await Profile.findOne({ where: { id: userId } }, {
         transaction: t
       });
-      if (!client) {
-        return { error: new Error('client not found') };
-      }
+      if (!client) return { error: new Error('client not found') };
 
       const contracts = await Contract.findAll({ where: { ClientId: +userId, status: 'in_progress' } }, {
         transaction: t
@@ -45,10 +39,10 @@ const balanceDepositHandler = async (req, res) => {
 
       const aggregatedJobsPrice = await Job.findAll({
         where: { ContractId: contractIds, paid: null },
-        attributes: ['ContractId', [Sequelize.fn('sum', Sequelize.col('price')), 'total']],
+        attributes: ['ContractId', [sequelize.fn('sum', sequelize.col('price')), 'total']],
         group : ['Job.ContractId'],
         raw: true,
-        order: Sequelize.literal('total DESC')
+        order: sequelize.literal('total DESC')
       }, {
         transaction: t
       });
@@ -73,11 +67,8 @@ const balanceDepositHandler = async (req, res) => {
 
     if(error) throw error;
 
-    res.status(200).json({
-      data
-    });
+    res.status(200).json({ data });
   } catch (error) {
-    
     const statusCode = httpStatusCodeBasedOnMessage(error.message);
     return res.status(statusCode).json({ error: error.message });
   }
