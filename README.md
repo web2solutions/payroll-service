@@ -1,4 +1,4 @@
-# DEEL BACKEND TASK
+# Simple Payroll Service
 
 This project is organized as a monorepo that coordinates a [backend](./backend) and a [frontend](./frontend) project.
 
