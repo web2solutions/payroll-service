@@ -1,13 +1,13 @@
 version: '3.8'
 services:
-  redis-cache:
+  redis-server:
     image: redis/redis-stack-server:latest
     restart: always
     ports:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     volumes: 
-      - redis-cache:/data
+      - redis-server:/data
 volumes:
-  redis-cache:
+  redis-server:
     driver: local

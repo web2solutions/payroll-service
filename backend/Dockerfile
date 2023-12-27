@@ -5,7 +5,9 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN rm -rf node_modules && rm package-lock.json && rm database.sqlite3
+# RUN rm -rf node_modules && rm package-lock.json && rm database.sqlite3
+
+RUN rm database.sqlite3
 
 RUN  npm i -g sqlite3 && npm install
 

@@ -87,8 +87,8 @@ function Login() {
       <div className="Login" onSubmit={doLogin}>
         <form className="form-signin">
           <div className="text-center mb-4">
-            <img className="mb-4 rounded" src="img/deel.jpeg" alt="" width="72" height="72" />
-            <h1 className="h3 mb-3 font-weight-normal">Deel home task</h1>
+            <img className="mb-4 rounded" src="img/payrollb.png" alt="" height="100" />
+            <h1 className="h3 mb-3 font-weight-normal">Payroll System</h1>
             <label htmlFor="profile-selection">Profile selection</label>
             <select
               id="profile-selection"

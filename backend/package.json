@@ -1,5 +1,5 @@
 {
-  "name": "deel-task-backend",
+  "name": "payroll-service-backend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -31,9 +31,5 @@
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "supertest": "^6.3.3"
-  },
-  "engines": {
-    "node": ">=10.16.3"
-  },
-  "engineStrict": true
+  }
 }

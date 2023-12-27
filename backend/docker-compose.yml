@@ -1,12 +1,12 @@
 version: '3.7'
 
 services:
-  deel-back-end:
+  payroll-back-end:
     build:
       context: .
       dockerfile: Dockerfile
-    image: deel-back-end
-    container_name: deel-back-end
+    image: payroll-back-end
+    container_name: payroll-back-end
     ports:
       - "3001:3001"
     volumes:

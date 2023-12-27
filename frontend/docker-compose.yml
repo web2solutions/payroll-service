@@ -1,12 +1,12 @@
 version: '3'
 
 services:
-  deel-front-end:
+  payroll-front-end:
     build:
       context: .
       dockerfile: Dockerfile
-    image: deel-front-end
-    container_name: deel-front-end
+    image: payroll-front-end
+    container_name: payroll-front-end
     ports:
       - "3000:3000"
     volumes:
