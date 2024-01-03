@@ -6,6 +6,9 @@ This project is organized as a monorepo that coordinates a [backend](./backend) 
 
 The [backend](./backend) is a REST API with some different end points and the [frontend](./frontend) is consuming that API.
 
+
+`Project status:` in progress
+
 It was made as a Home Task for Deel. Please see the [original requirements](./README_original.md)
 
 ## Tech debits
