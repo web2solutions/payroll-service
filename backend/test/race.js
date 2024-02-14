@@ -1,4 +1,4 @@
-/*global  */
+/*global process  */
 const request = require('supertest');
 const app = require('../src/app');
 
@@ -11,7 +11,6 @@ function req () {
 }
 
 async function race () {
-  // await app.get('locker').client.connect();
   const r = await Promise.all([ 
     req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), 
     req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), req(), 
@@ -20,7 +19,6 @@ async function race () {
 
   console.log(r.map( c => c.body));
   
-  // eslint-disable-next-line no-undef
   process.exit(0);
 }
 

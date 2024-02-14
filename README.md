@@ -2,18 +2,18 @@
 
 # Simple Payroll Service
 
-This project is organized as a monorepo that coordinates a [backend](./backend) and a [frontend](./frontend) project.
+This project is as POC and is organized as a monorepo that coordinates a [backend](./backend) and a [frontend](./frontend) project.
+
+The main purpose is to mitigate a locking mechanism for concurrent requests to vertical scaled node.js application.
 
 The [backend](./backend) is a REST API with some different end points and the [frontend](./frontend) is consuming that API.
 
 
 `Project status:` in progress
 
-It was made as a Home Task for Deel. Please see the [original requirements](./README_original.md)
-
 ## Tech debits
 
-Due the time limitation, there is a [list with some known tech debits](./TECH-DEBITS.md) that I would like to complete.
+[Tech debits](./TECH-DEBITS.md) 
 
 ## Application stacks
 
